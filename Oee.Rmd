@@ -1,7 +1,7 @@
 ---
 title: "OEE For 3D Printers"
 author: "Andrew Rosa"
-date: "5/27/2017"
+date: "6/02/2017"
 output:
         html_document:
                 includes:
@@ -11,7 +11,7 @@ output:
 
 ##Overall Equipment Effectiveness:
 
-The Overall equipment effectiveness metric or Oee, is a measurment of performance that indicates how well a manufacturing operation is utilized. The metric is a percentage of actual output against a theoritical maximum capacity. It is the product of three underlying metrics, availibility, quality, and performance. 
+The Overall equipment effectiveness metric or Oee, is a measurement of performance that indicates how well a manufacturing operation is utilized. The metric is a percentage of actual output against a theoretical maximum capacity. It is the product of three underlying metrics, availability, quality, and performance. 
 
 ```{r warning=FALSE, echo=FALSE, out.width="555px"}
 library(knitr)
@@ -20,22 +20,22 @@ include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/OEE.jpg")
 
 ###### Image Source: “OEE for the Production Team” by Arno Koch
 
-Here we'll demostrate how this metric can be apllied to a 3D printing manufacturing process that provides more variation among parts produced than traditional manufacturing processes.
+Here we'll demonstrate how this metric can be applied to a 3D printing manufacturing process that provides more variation among parts produced than traditional manufacturing processes.
 
-Before we can start we'll need a data-set that includes the number of parts per plate that has been printed, the estimated times, the actual times(elaspe time), and the number of succeful parts that pass inspection. This data-set needs to be comprised of all the plates that have been printed on the machine in a day. We'll use the data-set bellow for our example calculations: 
+Before we can start we'll need a data-set that includes the number of parts per plate that has been printed, the estimated times, the actual times(elapse time), and the number of successful parts that pass inspection. This data-set needs to be comprised of all the plates that have been printed on the machine in a day. We'll use the data-set bellow for our example calculations: 
 
 ```{r warning=FALSE, echo=FALSE}
 printer_1 <- read.csv(file = "~/Desktop/Oee_for_3D_Printers/Printer1Data.csv")
 kable(printer_1, caption = "Printer 1 Data-Set")
 ```
 
-###Availibility
+###Availability
 
 ```{r warning=FALSE, echo=FALSE, out.width="555px"}
 include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/availability_555.jpg")
 ```
 
-The availibilty metric is a measurment of how much time a machine is actually running to produce parts versus the potentioal amount of time the machine could be operated nonstop. The formula is $\text{Availibility} = \frac{Actual Production Time}{Potential Production Time}$. To find the actual production time we need to add up all of the elapsed times in minutes of the printed plates. Using R code this is done by:
+The availability metric is a measurement of how much time a machine is actually running to produce parts versus the potential amount of time the machine could be operated nonstop. The formula is $\text{Availibility} = \frac{Actual Production Time}{Potential Production Time}$. To find the actual production time we need to add up all of the elapsed times in minutes of the printed plates. Using R code this is done by:
 
 ```{r}
 actual_time <- sum(printer_1$elapsed_time)
@@ -45,12 +45,12 @@ For this calculation we'll assume that the facility that operated the 3D printer
 
 ```{r}
 shift <- 11.5 * 60
-availibility <- actual_time / shift
+availability <- actual_time / shift
 ```
 
-`r actual_time` / `r shift` = `r availibility`
+`r actual_time` / `r shift` = `r availability`
 
-####Availibility = `r 100*availibility`%
+####Availibility = `r 100*availability`%
 
 ###Quality
 
@@ -58,7 +58,7 @@ availibility <- actual_time / shift
 include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/Quality.jpg")
 ```
 
-Quality simply sees how many parts were good compared to all of the parts produces. It should be noted the a cancelled plate with deflate this metric. This gets balanced out for the Oee metric by the inflation this causes when we calculate the performance metric later on. 
+Quality simply sees how many parts were good compared to all of the parts produces. It should be noted the a cancelled plate will deflate this metric. This gets balanced out for the Oee metric by the inflation this causes when we calculate the performance metric later on. 
 
 Our formula for quality is $\text{Quality} = \frac{Total Good Parts}{Total Parts Produced}$
 
@@ -78,22 +78,22 @@ quality <- good_parts / total_parts
 include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/performance.jpg")
 ```
 
-Oee first started being used in the 1960's in conjunction with lean manufacturing processes. It's been used in manufaturing processes that are very standardized. The process of 3D printing though allows for a lot more variation of manufactured parts. We need to use averages in this case to center the data in order to calculate the performance metric.
+Oee first started being used in the 1960's in conjunction with lean manufacturing processes. It's been used in manufacturing processes that are very standardized. The process of 3D printing though allows for a lot more variation of manufactured parts. We need to use averages in this case to center the data in order to calculate the performance metric.
 
-To figure out the theoritical output we need to find the average time it takes to print a part per minute. First you calculate each plate's theoritical part per minute by dividing the number of parts on a plate with the estimated print times. Then you calculate the mean.
+To figure out the theoretical output we need to find the average time it takes to print a part per minute. First you calculate each plate's theoretical part per minute by dividing the number of parts on a plate with the estimated print times. Then you calculate the mean.
 
 ```{r}
 printer_1$parts_per_min <- printer_1$parts / printer_1$est_time
 ave_parts_per_min <- mean(printer_1$parts_per_min)
 ```
 
-Theoritical outpout is the product of the actual production time and average parts per minute.
+Theoretical output is the product of the actual production time and average parts per minute.
 
 ```{r}
 theo_output <- actual_time * ave_parts_per_min
 ```
 
-Performance is the total number of parts produced divided by the theoritical output.
+Performance is the total number of parts produced divided by the theoretical output.
 
 ```{r}
 performance <- total_parts / theo_output
@@ -108,16 +108,16 @@ performance <- total_parts / theo_output
 Finally OEE is the product of availability, quality, and performance. 
 
 ```{r, echo=FALSE}
-printer_1_oee <- availibility * quality * performance
+printer_1_oee <- availability * quality * performance
 ```
 
-$\text{OEE} = \text{Availibilty} \cdot \text{Quality} \cdot \text{Performance} = `r availibility` \cdot `r quality` \cdot `r performance` = `r printer_1_oee`$
+$\text{OEE} = \text{Availibilty} \cdot \text{Quality} \cdot \text{Performance} = `r availability` \cdot `r quality` \cdot `r performance` = `r printer_1_oee`$
 
 ####OEE = `r 100*printer_1_oee`%
 
 ###Scaling for Use in 3D Printing Factory
 
-To implement this for an entiry factory of 3D printers you would need to calculate the Oee for each 3D printer in a given day. Then you would calculate the average of all the Oee metrics to get a measurment to gauge the whole factory's equipment effectivness. 
+To implement this for an entire factory of 3D printers you would need to calculate the Oee for each 3D printer in a given day. Then you would calculate the average of all the Oee metrics to get a measurement to gauge the whole factory's equipment effectiveness. 
 
 
 
