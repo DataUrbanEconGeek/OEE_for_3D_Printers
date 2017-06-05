@@ -119,6 +119,8 @@ $\text{OEE} = \text{Availibilty} \cdot \text{Quality} \cdot \text{Performance} =
 
 To implement this for an entire factory of 3D printers you would need to calculate the Oee for each 3D printer in a given day. Then you would calculate the average of all the Oee metrics to get a measurement to gauge the whole factory's equipment effectiveness. 
 
+#####For more information on OEE:
+http://oeecoach.com/
 
 
 
