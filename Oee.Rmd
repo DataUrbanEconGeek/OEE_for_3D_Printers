@@ -1,5 +1,5 @@
 ---
-title: "OEE For 3D Printers"
+title: "TEEP For 3D Printers"
 author: "Andrew Rosa"
 date: "6/02/2017"
 output:
@@ -9,9 +9,9 @@ output:
                 css: style.css
 ---
 
-##Overall Equipment Effectiveness:
+##Total Effective Equipment Performance:
 
-The Overall equipment effectiveness metric or Oee, is a measurement of performance that indicates how well a manufacturing operation is utilized. The metric is a percentage of actual output against a theoretical maximum capacity. It is the product of three underlying metrics, availability, quality, and performance. 
+The total effective equipment Performance metric or TEEP, is a measurement of performance that indicates how well a manufacturing operation is utilized. The metric is a percentage of actual output against a theoretical maximum capacity. It is the product of three underlying metrics, availability, quality, and performance. 
 
 ```{r warning=FALSE, echo=FALSE, out.width="555px"}
 library(knitr)
@@ -41,14 +41,14 @@ The availability metric is a measurement of how much time a machine is actually 
 actual_time <- sum(printer_1$elapsed_time)
 ```
 
-For this calculation we'll assume that the facility that operated the 3D printer runs an eleven and a half hour shift. The potential production time is the time of the shift. 
+For this calculation we'll use a full 24 hours as the potential production time. If we were calculating Oee instead, we would use the time of a shift for the facility. 
 
 ```{r}
-shift <- 11.5 * 60
-availability <- actual_time / shift
+length_of_day <- 24 * 60
+availability <- actual_time / length_of_day
 ```
 
-`r actual_time` / `r shift` = `r availability`
+`r actual_time` / `r length_of_day` = `r availability`
 
 ####Availibility = `r 100*availability`%
 
@@ -58,7 +58,7 @@ availability <- actual_time / shift
 include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/Quality.jpg")
 ```
 
-Quality simply sees how many parts were good compared to all of the parts produces. It should be noted the a cancelled plate will deflate this metric. This gets balanced out for the Oee metric by the inflation this causes when we calculate the performance metric later on. 
+Quality simply sees how many parts were good compared to all of the parts produces. It should be noted the a cancelled plate will deflate this metric. This gets balanced out for the TEEP metric by the inflation this causes when we calculate the performance metric later on. 
 
 Our formula for quality is $\text{Quality} = \frac{Total Good Parts}{Total Parts Produced}$
 
@@ -78,7 +78,7 @@ quality <- good_parts / total_parts
 include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/performance.jpg")
 ```
 
-Oee first started being used in the 1960's in conjunction with lean manufacturing processes. It's been used in manufacturing processes that are very standardized. The process of 3D printing though allows for a lot more variation of manufactured parts. We need to use averages in this case to center the data in order to calculate the performance metric.
+TEEP first started being used in the 1960's in conjunction with lean manufacturing processes. It's been used in manufacturing processes that are very standardized. The process of 3D printing though allows for a lot more variation of manufactured parts. We need to use averages in this case to center the data in order to calculate the performance metric.
 
 To figure out the theoretical output we need to find the average time it takes to print a part per minute. First you calculate each plate's theoretical part per minute by dividing the number of parts on a plate with the estimated print times. Then you calculate the mean.
 
@@ -103,23 +103,24 @@ performance <- total_parts / theo_output
 
 ####Performance = `r 100*performance`%
 
-###OEE
+###TEEP
 
-Finally OEE is the product of availability, quality, and performance. 
+Finally TEEP is the product of availability, quality, and performance. 
 
 ```{r, echo=FALSE}
-printer_1_oee <- availability * quality * performance
+printer_1_teep <- availability * quality * performance
 ```
 
-$\text{OEE} = \text{Availibilty} \cdot \text{Quality} \cdot \text{Performance} = `r availability` \cdot `r quality` \cdot `r performance` = `r printer_1_oee`$
+$\text{TEEP} = \text{Availibilty} \cdot \text{Quality} \cdot \text{Performance} = `r availability` \cdot `r quality` \cdot `r performance` = `r printer_1_teep`$
 
-####OEE = `r 100*printer_1_oee`%
+####TEEP = `r 100*printer_1_teep`%
 
 ###Scaling for Use in 3D Printing Factory
 
-To implement this for an entire factory of 3D printers you would need to calculate the Oee for each 3D printer in a given day. Then you would calculate the average of all the Oee metrics to get a measurement to gauge the whole factory's equipment effectiveness. 
+To implement this for an entire factory of 3D printers you would need to calculate the TEEP for each 3D printer in a given day. Then you would calculate the average of all the TEEP metrics to get a measurement to gauge the whole factory's equipment effectiveness. 
 
-#####For more information on OEE:
+#####For more information on TEEP and OEE:
+https://www.machinemetrics.com/blog/oee-ooe-teep
 http://oeecoach.com/
 
 
