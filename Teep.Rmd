@@ -1,0 +1,134 @@
+---
+title: "TEEP For 3D Printers"
+author: "Andrew Rosa"
+date: "6/02/2017"
+output:
+        html_document:
+                includes:
+                        in_header: head.html
+                css: style.css
+---
+
+##Background
+
+Voodoo Manufacturing is a start-up that is seeking to disrupt the manufacturing industry with the use of new technologies that take digital files and fabricates them into physical objects. Currently they focus on the use of commercial grade 3D printers to accomplish production. Their factory in Brooklyn New York, houses over one hundred and sixty 3D printers. 
+
+One hundred and sixty 3D printers is a large amount of equipment to maintain. It's important to be able to gauge the utilization or performance of the equipment to answer such questions as is the entire factory being use efficiently, or do a select few machines do the bulk of the work? The standard metric used by manufacturing businesses is OEE, or the Overall Equipment Effectiveness. The issue with using OEE over time though in a start-up setting is that the business will change how it operates over time. OEE needs to have a defined shift time in order to calculate, the length of shifts for Voodoo Manufacturing may change over time, so making it harder to compare OEE rates of now, verses a years down the road. Instead TEEP, OEE cousin should be used to make comparisons over time easier to analyse. Here we'll demonstrate a method of calculating TEEP for the use of 3D Printers.
+
+##Total Effective Equipment Performance:
+
+The Total Effective Equipment Performance metric or TEEP, is a measurement of performance that indicates how well a manufacturing operation is utilized. The metric is a percentage of actual output against a theoretical maximum capacity. It is the product of three underlying metrics: availability, quality, and performance. 
+
+```{r warning=FALSE, echo=FALSE, out.width="555px"}
+library(knitr)
+include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/OEE.jpg")
+```
+
+###### Image Source: “OEE for the Production Team” by Arno Koch
+
+Here we'll demonstrate how this metric can be applied to a 3D printing manufacturing process that provides more variation among parts produced than traditional manufacturing processes.
+
+Before we can start we'll need a data-set that includes the number of parts per plate that has been printed, the estimated times, the actual times(elapse time), and the number of successful parts that pass inspection. This data-set needs to be comprised of all the plates that have been printed on the machine in a day. We'll use the data-set below for our example calculations: 
+
+```{r warning=FALSE, echo=FALSE}
+printer_1 <- read.csv(file = "~/Desktop/Oee_for_3D_Printers/Printer1Data.csv")
+heads <- names(printer_1)
+new_heads <- gsub("_", " ", heads)
+
+simpleCap <- function(x) {
+  s <- strsplit(x, " ")[[1]]
+  paste(toupper(substring(s, 1,1)), substring(s, 2),
+      sep="", collapse=" ")
+}
+
+new_heads2 <- unlist(lapply(new_heads, simpleCap))
+
+formated <- printer_1
+names(formated) <- new_heads2
+formated <- cbind("Bot Id" = formated[,1], formated[,3:10])
+kable(formated, caption = "Printer 1 Data-Set")
+```
+
+###Availability
+
+```{r warning=FALSE, echo=FALSE, out.width="555px"}
+include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/availability_555.jpg")
+```
+
+The availability metric is a measurement of how much time a machine is actually running to produce parts versus the potential amount of time the machine could be operated nonstop. The formula is $\text{Availibility} = \frac{Actual Production Time}{Potential Production Time}$. To find the actual production time we need to add up all of the elapsed times in minutes of the printed plates. Using R code this is done by:
+
+```{r}
+actual_time <- sum(printer_1$elapsed_time)
+```
+
+For this calculation we'll use a full 24 hours as the potential production time. If we were calculating Oee instead, we would use the time of a shift for the facility. 
+
+```{r}
+length_of_day <- 24 * 60
+availability <- actual_time / length_of_day
+```
+
+```{r echo=FALSE}
+actual_time <- round(actual_time, digits = 3)
+availability <- round(availability, digits = 3)
+```
+
+`r actual_time` / `r length_of_day` = `r availability`
+
+####Availibility = `r 100*availability`%
+
+###Quality Performance
+
+```{r warning=FALSE, echo=FALSE, out.width="555px"}
+include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/performance.jpg")
+include_graphics("/Users/andrewrosa/Desktop/Oee_for_3D_Printers/images/Quality.jpg")
+```
+
+Traditionally the performance metric is a measurement of the theoretical speed to produce a part verses the the actual speed it took. With 3D printers though there is no distinction between the actual and the theoretical speeds. This means that the performance is always 100%, which isn't beneficial. 
+
+We also need to consider the details of the quality metric. Quality traditionally is calculated by dividing the number of good parts produced by the total number of parts produced. A cancelled plate deflates this metric though, even though full parts were never produced. Instead of using the traditional calculation of quality and a performance measurement of 100% we should use a metric that better demonstrates the reality of what is happening with our machine. We have decided to use a quality performance metric. For this metric we are looking at how much time was spent making good successful parts versus the time the machine operated.  
+
+Our formula is $\text{Quality Performance} = \frac{Total Time for Successful Parts}{Actual Production Time}$
+
+```{r warning=FALSE, message=FALSE}
+succes_print_time <- sum((printer_1$successful_parts/printer_1$parts) * printer_1$elapsed_time)
+quality_performance <- succes_print_time/actual_time
+```
+
+```{r echo=FALSE}
+quality_performance <- round(quality_performance, digits = 3)
+```
+
+`r succes_print_time` / `r actual_time` = `r quality_performance`
+
+####Quality Performance = `r 100*quality_performance`%
+
+###TEEP
+
+Finally our TEEP calculation is the product of Availability, and Quality Performance. 
+
+```{r, echo=FALSE}
+printer_1_teep <- round(availability * quality_performance, digits = 3)
+```
+
+$\text{TEEP} = \text{Availibilty} \cdot \text{Quality Performance} = `r availability` \cdot `r quality_performance` = `r printer_1_teep`$
+
+####TEEP = `r 100*printer_1_teep`%
+
+###Scaling for Use in 3D Printing Factory
+
+To implement this for an entire factory of 3D printers we would need to calculate the TEEP for each 3D printer in a given day. Then we would calculate the average of all the TEEP metrics to get a measurement to gauge the whole factory's equipment effectiveness. 
+
+#####For more information on TEEP and OEE:
+https://www.machinemetrics.com/blog/oee-ooe-teep
+http://www.mmsonline.com/columns/oee-the-gift-that-keeps-on-giving
+http://oeecoach.com/
+
+
+
+
+
+
+
+
+
